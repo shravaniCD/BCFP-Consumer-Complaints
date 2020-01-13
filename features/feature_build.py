@@ -66,6 +66,9 @@ def uniq_Prod_Iss(data):
 
 def feature_build_noNaN_cols(data):
     
+    '''
+    Select the features with no-missing values
+    '''
     miss_val=(data.isnull().sum(axis=0))/len(data)*100
     cols=miss_val[miss_val == 0].index.tolist()
     fdata=data[cols]
@@ -74,20 +77,24 @@ def feature_build_noNaN_cols(data):
 
 
 def feature_catconv(data,cat_cols):
-   
+   '''
+   Convert features listed in cat_cols to categories
+   '''
     # Convert features to categories using one-hot-encoding 
-    data[cat_cols]=data[cat_cols].astype('category')
+   data[cat_cols]=data[cat_cols].astype('category')
     
    # data=pd.get_dummies(data, columns=cat_cols, drop_first=False,dummy_na=True)
-    data=pd.get_dummies(data, columns=cat_cols, drop_first=False)
+   data=pd.get_dummies(data, columns=cat_cols, drop_first=False)
 
-    print(data.info())
+   print(data.info())
     
-    return data
+   return data
 
 
 def feature_rm(data,*args):
-    
+    '''
+    Remove the columns in *args from dataframe
+    '''
     for i in args:
         data=data.drop(i,axis=1)
         
