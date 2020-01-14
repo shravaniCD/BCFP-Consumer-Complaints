@@ -1,23 +1,23 @@
 import pandas as pd
-import numpy as np
+#import numpy as np
 
 from sklearn.model_selection import train_test_split
 
-from dython.nominal import *
+import dython.nominal as dn
 
-def feature_build_noNaN_cols(data):
+def feature_noNaNs(df):
     
     '''
     Select the features with no-missing values
     '''
-    miss_val=(data.isnull().sum(axis=0))/len(data)*100
+    miss_val=(df.isnull().sum(axis=0))/len(df)*100
     cols=miss_val[miss_val == 0].index.tolist()
-    fdata=data[cols]
+    df=df[cols]
     
-    return fdata
+    return df
 
 
-def feature_catconv(df,cat_cols):
+def feature_OHEConv(df,cat_cols):
    '''
    Convert features listed in cat_cols to categories
    '''
@@ -27,12 +27,12 @@ def feature_catconv(df,cat_cols):
    # data=pd.get_dummies(data, columns=cat_cols, drop_first=False,dummy_na=True)
    df=pd.get_dummies(df, columns=cat_cols, drop_first=False)
 
-   print(data.info())
+   print(df.info())
     
-   return data
+   return df
 
 
-def feature_split(df,target,*args):
+def feature_target_split(df,target,*args):
     '''
     Remove the columns in *args from dataframe
     '''
@@ -45,36 +45,8 @@ def feature_split(df,target,*args):
 
 
 
-def corr_return(training,validation,threshold):
+def feature_corr(df,cat_feats):
     
-    corr_matrix=training.corr().abs()
+    dn.associations(df,nominal_columns=cat_feats,theil_u=True)
     
-    # Select upper triangle of correlation matrix
-    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
-    
-    # Find index of feature columns with correlation greater than 0.95
-    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
-    
-    return to_drop  
-
-
-
-def selective_corr(training, validation, threshold, ofloat: True):
-    
-    if ofloat:
-        train = training.select_dtypes(include='float64')
-        valid = validation.select_dtypes(include='float64')
-        
-        to_drop = corr_return(train,valid,threshold)
-        
-        train=training.drop(training[to_drop], axis=1)    
-        valid=validation.drop(training[to_drop], axis=1)
-        
-        return train, valid
-    else:
-        
-        to_drop = corr_return(training,validation,threshold)
-        train=training.drop(training[to_drop], axis=1)    
-        valid=validation.drop(training[to_drop], axis=1)
-
-    return train, valid
+    return

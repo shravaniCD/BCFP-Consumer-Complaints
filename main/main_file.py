@@ -40,15 +40,16 @@ to_drop=['Sub-issue','Sub-product','Date received','Consumer complaint narrative
 
 ndata=data.drop(to_drop,axis=1)
 
-cat_feats = ndata.select_dtypes('object').columns.tolist()
-
 target='Untimely response?'
 
-X_train, X_test,y_train, y_test = feature_split(ndata,target)
+X_train, X_test,y_train, y_test = feature_target_split(ndata,target)
+
+
+cat_feats = ndata.select_dtypes('object').columns.tolist()
 
 cat_up= CatBoostModel()
 cat_up.fit(X_train,y_train,cat_features=cat_feats)
 
-
-print('Gini for train set =',cat_up.score(X_train,y_train))
-print('Gini for test set =',cat_up.score(X_test,y_test))
+print('Gini score for Predicition of Untimely response from company: ')
+print('Train set =',cat_up.score(X_train,y_train))
+print('Test set =',cat_up.score(X_test,y_test))
