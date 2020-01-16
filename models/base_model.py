@@ -1,10 +1,13 @@
 import pandas as pd
 
-from catboost import CatBoostClassifier
+from catboost import CatBoostClassifier,Pool
 from sklearn.metrics import roc_curve,roc_auc_score
 from sklearn.model_selection import RandomizedSearchCV
 
 import pickle
+import shap
+
+import matplotlib.pyplot as plt
 
 
 class AbstractModel:
@@ -33,8 +36,21 @@ class AbstractModel:
     def save(self, filename: str):
         pickle.dump(self, open(filename, 'wb'))
 
+    def shap_sum(self, features, labels, **kwargs):
+        shap_values=self.model.get_feature_importance(Pool(features, label=labels, **kwargs),type='ShapValues')
+        pickle.dump(shap_values, open('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\shap_summary.sav','wb'))
+        print('Summary of SHAP values saved to shap_summary.sav')
+        shap_values=shap_values[:,:-1]
+        shap.initjs()
+        shap.summary_plot(shap_values, features)
+    
+    def shap_ind(self, features, ind):
+        shap_values=pickle.load(open('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\shap_summary.sav','rb'))
+        expected_value=shap_values[0,-1]
+        shap_values=shap_values[:,:-1]
+        shap.force_plot(expected_value, shap_values[ind,:], features.iloc[ind,:])
 
 class CatBoostModel(AbstractModel):
 
     def __init__(self, **kwargs):
-        self.model = CatBoostClassifier(thread_count=4, loss_function='Logloss',eval_metric='AUC', verbose=10, l2_leaf_reg=5, **kwargs)
+        self.model = CatBoostClassifier(thread_count=4, loss_function='Logloss',eval_metric='AUC', verbose=10, l2_leaf_reg=1, **kwargs)
