@@ -36,19 +36,23 @@ class AbstractModel:
     def save(self, filename: str):
         pickle.dump(self, open(filename, 'wb'))
 
-    def shap_sum(self, features, labels, **kwargs):
+    def shap_sum(self, features, labels,filename:str, **kwargs):
         shap_values=self.model.get_feature_importance(Pool(features, label=labels, **kwargs),type='ShapValues')
-        pickle.dump(shap_values, open('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\shap_summary.sav','wb'))
-        print('Summary of SHAP values saved to shap_summary.sav')
+        filename="D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\\" + filename + '.sav'
+        pickle.dump(shap_values, open(filename,'wb'))
+        print('Summary of SHAP values saved!')
         shap_values=shap_values[:,:-1]
         shap.initjs()
         shap.summary_plot(shap_values, features)
+        plt.show()
     
-    def shap_ind(self, features, ind):
-        shap_values=pickle.load(open('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\shap_summary.sav','rb'))
+    def shap_ind(self, features, ind,filename:str):
+        filename="D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\\" + filename + '.sav'
+        shap_values=pickle.load(open(filename,'rb'))
         expected_value=shap_values[0,-1]
         shap_values=shap_values[:,:-1]
-        shap.force_plot(expected_value, shap_values[ind,:], features.iloc[ind,:])
+        #shap.force_plot(expected_value, shap_values[ind,:], features.iloc[ind,:])
+        return expected_value,shap_values[ind,:], features.iloc[ind,:]
 
 class CatBoostModel(AbstractModel):
 

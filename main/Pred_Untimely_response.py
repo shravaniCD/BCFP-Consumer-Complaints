@@ -67,3 +67,5 @@ print('Train set =',cat_up.score(X_train,y_train))
 print('Test set =',cat_up.score(X_test,y_test))
 #
 cat_up.save('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\Pred_Untimely_response.sav')
+#%%
+cat_up= pickle.load(open('D:\Profile\lmw\Desktop\Kaggle\Consumer_complaints\data\Pred_Untimely_response.sav','rb'))
